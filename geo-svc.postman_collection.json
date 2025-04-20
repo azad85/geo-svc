@@ -10,7 +10,7 @@
 			"name": "Authentication",
 			"item": [
 				{
-					"name": "Login",
+					"name": "Login (Success)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -29,6 +29,28 @@
 							"path": ["api", "auth", "login"]
 						},
 						"description": "Authenticate and get JWT token"
+					}
+				},
+				{
+					"name": "Login (Invalid Credentials)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"wrong_password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Test error handling for invalid credentials"
 					}
 				}
 			]
@@ -60,6 +82,54 @@
 							"path": ["api", "postal-codes"]
 						},
 						"description": "Create or update a postal code with its coordinates"
+					}
+				},
+				{
+					"name": "Create/Update Postal Code (Invalid Token)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer invalid_token"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"postcode\": \"SW1A 1AA\",\n    \"latitude\": 51.5035,\n    \"longitude\": -0.1277\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/postal-codes",
+							"host": ["{{base_url}}"],
+							"path": ["api", "postal-codes"]
+						},
+						"description": "Test error handling for invalid token"
+					}
+				},
+				{
+					"name": "Create/Update Postal Code (Missing Token)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"postcode\": \"SW1A 1AA\",\n    \"latitude\": 51.5035,\n    \"longitude\": -0.1277\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/postal-codes",
+							"host": ["{{base_url}}"],
+							"path": ["api", "postal-codes"]
+						},
+						"description": "Test error handling for missing token"
 					}
 				},
 				{
