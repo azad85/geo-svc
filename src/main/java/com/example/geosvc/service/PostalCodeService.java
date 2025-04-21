@@ -17,6 +17,9 @@ import java.util.Optional;
 
 @Service
 public class PostalCodeService {
+
+    private final static double EARTH_RADIUS = 6371; // radius in kilometers
+
     private final PostalCodeRepository postalCodeRepository;
 
     public PostalCodeService(PostalCodeRepository postalCodeRepository) {
@@ -29,17 +32,17 @@ public class PostalCodeService {
         PostalCode pc2 = postalCodeRepository.findByPostcode(postcode2)
                 .orElseThrow(() -> new IllegalArgumentException("Postcode not found: " + postcode2));
 
-        double distance = calculateHaversineDistance(
+        double distance = calculateDistance(
                 pc1.getLatitude().doubleValue(), pc1.getLongitude().doubleValue(),
                 pc2.getLatitude().doubleValue(), pc2.getLongitude().doubleValue());
 
         DistanceResponse.Location location1 = new DistanceResponse.Location(
-                pc1.getPostcode(), 
-                pc1.getLatitude().doubleValue(), 
+                pc1.getPostcode(),
+                pc1.getLatitude().doubleValue(),
                 pc1.getLongitude().doubleValue());
         DistanceResponse.Location location2 = new DistanceResponse.Location(
-                pc2.getPostcode(), 
-                pc2.getLatitude().doubleValue(), 
+                pc2.getPostcode(),
+                pc2.getLatitude().doubleValue(),
                 pc2.getLongitude().doubleValue());
 
         return new DistanceResponse(location1, location2, distance);
@@ -56,21 +59,31 @@ public class PostalCodeService {
                 .orElseGet(() -> postalCodeRepository.save(postalCode));
     }
 
-    private double calculateHaversineDistance(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371; // Radius of the earth in km
-        double latDistance = Math.toRadians(lat2 - lat1);
-        double lonDistance = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+    private double calculateDistance(double latitude, double longitude, double latitude2, double longitude2) {
+        // Using Haversine formula! See Wikipedia;
+        double lon1Radians = Math.toRadians(longitude);
+        double lon2Radians = Math.toRadians(longitude2);
+        double lat1Radians = Math.toRadians(latitude);
+        double lat2Radians = Math.toRadians(latitude2);
+        double a = haversine(lat1Radians, lat2Radians)
+                + Math.cos(lat1Radians) * Math.cos(lat2Radians) * haversine(lon1Radians, lon2Radians);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
+
+        return (EARTH_RADIUS * c);
+    }
+
+    private double haversine(double deg1, double deg2) {
+        return square(Math.sin((deg1 - deg2) / 2.0));
+    }
+
+    private double square(double x) {
+        return x * x;
     }
 
     public PostalCodeResponse getPostalCodeMapping(String postcode) {
         Optional<PostalCode> postalCode = postalCodeRepository.findByPostcode(postcode);
         return postalCode.map(pc -> new PostalCodeResponse(pc.getPostcode(), pc.getLatitude(), pc.getLongitude()))
-            .orElseThrow(() -> new PostalCodeNotFoundException(postcode));
+                .orElseThrow(() -> new PostalCodeNotFoundException(postcode));
     }
 
     @Transactional
@@ -80,9 +93,9 @@ public class PostalCodeService {
 
         postalCode.setLatitude(request.getLatitude());
         postalCode.setLongitude(request.getLongitude());
-        
+
         PostalCode updatedPostalCode = postalCodeRepository.save(postalCode);
-        
+
         return new PostalCodeResponse(
                 updatedPostalCode.getPostcode(),
                 updatedPostalCode.getLatitude(),
