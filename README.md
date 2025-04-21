@@ -95,10 +95,19 @@ The application will start on port 8080.
     "password": "admin"
 }
 ```
-- **Response**:
+- **Success Response**:
 ```json
 {
-    "token": "your-jwt-token"
+    "token": "jwt-token-here"
+}
+```
+- **Error Response**:
+```json
+{
+    "path": "/api/auth/login",
+    "message": "Authentication required: Incorrect username or password",
+    "error": "Unauthorized",
+    "status": 401
 }
 ```
 
@@ -193,6 +202,49 @@ The structured logging format enables easy:
 - Usage analytics for most frequently requested postal codes
 - System monitoring and troubleshooting
 - Data aggregation for reporting purposes
+
+## Testing
+
+The application includes comprehensive test coverage for both service and controller layers.
+
+### Service Layer Tests
+
+#### AuthService Tests
+- `login_ValidCredentials_ReturnsToken`: Verifies successful login returns a valid JWT token
+- `login_InvalidCredentials_ThrowsException`: Verifies invalid credentials throw an authentication exception
+- `login_AuthenticationException_ThrowsException`: Verifies authentication failures are properly handled
+
+#### PostalCodeService Tests
+- `calculateDistance_ValidPostcodes_ReturnsCorrectDistance`: Verifies distance calculation between valid postcodes
+- `calculateDistance_InvalidPostcode_ThrowsException`: Verifies invalid postcode handling
+- `createOrUpdatePostalCode_NewPostcode_CreatesNewRecord`: Verifies creation of new postal code records
+- `createOrUpdatePostalCode_ExistingPostcode_UpdatesRecord`: Verifies updating existing postal code records
+
+### Controller Layer Tests
+
+#### AuthController Tests
+- `login_ValidCredentials_ReturnsSuccessResponse`: Verifies successful login API response
+- `login_InvalidCredentials_ReturnsErrorResponse`: Verifies error response format for invalid credentials
+
+#### PostalCodeLoggingAspect Tests
+- `logDistanceRequest_ValidRequest_LogsCorrectly`: Verifies proper logging of postal code distance requests
+
+### Running Tests
+
+To run all tests:
+```bash
+mvn test
+```
+
+To run a specific test class:
+```bash
+mvn test -Dtest=AuthServiceTest
+```
+
+To run a specific test method:
+```bash
+mvn test -Dtest=AuthServiceTest#login_ValidCredentials_ReturnsToken
+```
 
 ## Contributing
 
