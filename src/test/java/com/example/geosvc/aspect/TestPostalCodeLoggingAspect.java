@@ -6,31 +6,23 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Aspect
-@Component
-public class PostalCodeLoggingAspect {
+public class TestPostalCodeLoggingAspect {
     private final Logger logger;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
     private static final ThreadLocal<String> requestIdHolder = new ThreadLocal<>();
     private static final String EVENT_TYPE = "get_postalcode_latlong_distance";
 
-    public PostalCodeLoggingAspect() {
-        this.logger = LoggerFactory.getLogger(PostalCodeLoggingAspect.class);
-    }
-
-    // Constructor for testing
-    PostalCodeLoggingAspect(Logger logger) {
+    public TestPostalCodeLoggingAspect(Logger logger) {
         this.logger = logger;
     }
 
-    @Before("execution(* com.example.geosvc.controller.PostalCodeController.calculateDistance(..)) && args(request)")
+    @Before("execution(* com.example.geosvc.aspect.PostalCodeLoggingAspectTest.TestService.calculateDistance(..)) && args(request)")
     public void logDistanceRequest(DistanceRequest request) {
         String requestId = UUID.randomUUID().toString();
         requestIdHolder.set(requestId);
@@ -47,7 +39,7 @@ public class PostalCodeLoggingAspect {
         logger.info(logMessage);
     }
 
-    @AfterReturning(pointcut = "execution(* com.example.geosvc.controller.PostalCodeController.calculateDistance(..))", 
+    @AfterReturning(pointcut = "execution(* com.example.geosvc.aspect.PostalCodeLoggingAspectTest.TestService.calculateDistance(..))", 
                    returning = "result")
     public void logDistanceResponse(JoinPoint joinPoint, Object result) {
         DistanceRequest request = (DistanceRequest) joinPoint.getArgs()[0];
