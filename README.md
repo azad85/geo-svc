@@ -156,6 +156,65 @@ The application will start on port 8080.
 ```
 - **Response**: Returns the created/updated postal code record
 
+#### Update Postal Code Coordinates
+- **URL**: `/api/postal-codes/{postcode}`
+- **Method**: `PUT`
+- **Headers**: `Authorization: Bearer your-jwt-token`
+- **Body**:
+```json
+{
+    "latitude": 51.5036,
+    "longitude": -0.1278
+}
+```
+- **Success Response**:
+```json
+{
+    "postcode": "SW1A 1AA",
+    "latitude": 51.5036,
+    "longitude": -0.1278
+}
+```
+- **Error Response** (Postal code not found):
+```json
+{
+    "path": "/api/postal-codes/INVALID",
+    "message": "Postal code not found: INVALID",
+    "error": "Not Found",
+    "status": 404
+}
+```
+
+#### Get All Postal Codes
+- **URL**: `/api/postal-codes`
+- **Method**: `GET`
+- **Headers**: `Authorization: Bearer your-jwt-token`
+- **Query Parameters**:
+  - `page` (optional): Page number (default: 0)
+  - `size` (optional): Number of items per page (default: 10)
+  - `sortBy` (optional): Field to sort by (default: postcode)
+- **Success Response**:
+```json
+{
+    "content": [
+        {
+            "postcode": "EC2A 2AH",
+            "latitude": 51.5200,
+            "longitude": -0.0800
+        },
+        {
+            "postcode": "SW1A 1AA",
+            "latitude": 51.5035,
+            "longitude": -0.1277
+        }
+    ],
+    "totalElements": 2,
+    "totalPages": 1,
+    "size": 10,
+    "number": 0
+}
+```
+
 ## Security
 
 - All endpoints except `/api/auth/login` require JWT authentication
