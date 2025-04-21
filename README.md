@@ -35,6 +35,24 @@ CREATE TABLE IF NOT EXISTS `postcodelatlng` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
 
+3. Download and import postal code data:
+   - Download the UK postal codes CSV file from [ukpostcodes.zip](https://data.freemaptools.com/download/full-uk-postcodes/ukpostcodes.zip)
+   - The CSV file should contain columns for postcode, latitude, and longitude
+   - Import the data using the following SQL command:
+```sql
+LOAD DATA INFILE '/path/to/ukpostcodes.csv'
+INTO TABLE postcodelatlng
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(postcode, latitude, longitude);
+```
+
+Note: If you encounter the "The MySQL server is running with the --secure-file-priv option" error, you can:
+1. Place your CSV file in the secure directory (usually `/var/lib/mysql-files/` on Linux or `C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\` on Windows)
+2. Or temporarily disable secure-file-priv in your MySQL configuration
+
 ### 2. Application Configuration
 
 1. Update the `application.properties` file with your database credentials:
@@ -147,4 +165,4 @@ The API returns appropriate HTTP status codes and error messages:
 
 ## Contributing
 
-Feel free to submit issues and enhancement requests. 
+Feel free to submit issues and enhancement requests.
