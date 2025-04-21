@@ -163,6 +163,37 @@ The API returns appropriate HTTP status codes and error messages:
 - 404: Not Found (postal code not found)
 - 500: Internal Server Error
 
+## Request Logging
+
+The application implements structured logging for postal code distance calculations. Each request is tracked with a unique identifier and includes detailed information for monitoring and analytics.
+
+### Log Format
+```
+POSTAL_CODE_REQUEST|TIMESTAMP|REQUEST_ID|EVENT_TYPE|POSTCODE1|POSTCODE2|STATUS
+```
+
+### Fields Description
+- `TIMESTAMP`: Request timestamp in format 'yyyy-MM-dd HH:mm:ss.SSS'
+- `REQUEST_ID`: Unique UUID for tracking the request throughout its lifecycle
+- `EVENT_TYPE`: Type of operation (get_postalcode_latlong_distance)
+- `POSTCODE1`: First postal code in the request
+- `POSTCODE2`: Second postal code in the request
+- `STATUS`: Current status of the request (REQUEST_RECEIVED or REQUEST_COMPLETED)
+
+### Example Log Entries
+```
+POSTAL_CODE_REQUEST|2024-03-14 10:30:45.123|550e8400-e29b-41d4-a716-446655440000|get_postalcode_latlong_distance|SW1A 1AA|EC2A 2AH|REQUEST_RECEIVED
+POSTAL_CODE_REQUEST|2024-03-14 10:30:45.234|550e8400-e29b-41d4-a716-446655440000|get_postalcode_latlong_distance|SW1A 1AA|EC2A 2AH|REQUEST_COMPLETED
+```
+
+### Log Analysis
+The structured logging format enables easy:
+- Request tracking using the unique REQUEST_ID
+- Performance monitoring by calculating duration between REQUEST_RECEIVED and REQUEST_COMPLETED
+- Usage analytics for most frequently requested postal codes
+- System monitoring and troubleshooting
+- Data aggregation for reporting purposes
+
 ## Contributing
 
 Feel free to submit issues and enhancement requests.
