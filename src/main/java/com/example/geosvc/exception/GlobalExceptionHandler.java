@@ -65,4 +65,19 @@ public class GlobalExceptionHandler {
         
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(PostalCodeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePostalCodeNotFoundException(
+            PostalCodeNotFoundException ex,
+            HttpServletRequest request) {
+        
+        ErrorResponse errorResponse = new ErrorResponse(
+            request.getRequestURI(),
+            ex.getMessage(),
+            "Not Found",
+            HttpStatus.NOT_FOUND.value()
+        );
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
 } 

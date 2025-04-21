@@ -1,8 +1,13 @@
 package com.example.geosvc.service;
 
 import com.example.geosvc.dto.DistanceResponse;
+import com.example.geosvc.dto.PostalCodeResponse;
+import com.example.geosvc.dto.UpdatePostalCodeRequest;
+import com.example.geosvc.exception.PostalCodeNotFoundException;
 import com.example.geosvc.model.PostalCode;
 import com.example.geosvc.repository.PostalCodeRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,5 +65,38 @@ public class PostalCodeService {
                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
+    }
+
+    public PostalCodeResponse getPostalCodeMapping(String postcode) {
+        Optional<PostalCode> postalCode = postalCodeRepository.findByPostcode(postcode);
+        return postalCode.map(pc -> new PostalCodeResponse(pc.getPostcode(), pc.getLatitude(), pc.getLongitude()))
+            .orElseThrow(() -> new PostalCodeNotFoundException(postcode));
+    }
+
+    @Transactional
+    public PostalCodeResponse updatePostalCodeMapping(String postcode, UpdatePostalCodeRequest request) {
+        PostalCode postalCode = postalCodeRepository.findByPostcode(postcode)
+                .orElseThrow(() -> new PostalCodeNotFoundException(postcode));
+
+        postalCode.setLatitude(request.getLatitude());
+        postalCode.setLongitude(request.getLongitude());
+        
+        PostalCode updatedPostalCode = postalCodeRepository.save(postalCode);
+        
+        return new PostalCodeResponse(
+                updatedPostalCode.getPostcode(),
+                updatedPostalCode.getLatitude(),
+                updatedPostalCode.getLongitude()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostalCodeResponse> getAllPostalCodes(Pageable pageable) {
+        return postalCodeRepository.findAll(pageable)
+                .map(postalCode -> new PostalCodeResponse(
+                        postalCode.getPostcode(),
+                        postalCode.getLatitude(),
+                        postalCode.getLongitude()
+                ));
     }
 } 
